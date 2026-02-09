@@ -1,0 +1,32 @@
+# Use official Python runtime as base image
+FROM python:3.11-slim
+
+# Set working directory in container
+WORKDIR /app
+
+# Copy frontend requirements file
+COPY frontend/requirements.txt .
+
+# Install dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy the entire frontend application
+COPY frontend/ .
+
+# Expose port 8501 (Streamlit default port)
+EXPOSE 8501
+
+# Create .streamlit directory and config
+RUN mkdir -p /root/.streamlit
+
+RUN echo "\
+[client]\n\
+showErrorDetails = true\n\
+[server]\n\
+headless = true\n\
+port = 8501\n\
+enableXsrfProtection = false\n\
+" > /root/.streamlit/config.toml
+
+# Run Streamlit application
+CMD ["streamlit", "run", "frontend.py", "--server.port=8501", "--server.address=0.0.0.0"]
